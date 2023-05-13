@@ -41,6 +41,7 @@ userApp.get("/:id", async (req, res) => {
   res.status(200).send(JSON.stringify({id: userId, ...userData}));
 });
 
+// post body data validation
 const userCreationValidators = [
   body("email").notEmpty().isEmail(),
   body("firstName").notEmpty(),
