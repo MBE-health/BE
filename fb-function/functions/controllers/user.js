@@ -2,9 +2,7 @@ const functions = require("firebase-functions");
 
 const express = require("express");
 const cors = require("cors");
-
 const authMiddleware = require("../middleware/auth");
-
 const admin = require("firebase-admin");
 admin.initializeApp();
 const db = admin.firestore();
