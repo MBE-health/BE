@@ -16,7 +16,7 @@ const userApp = express();
 userApp.use(cors({origin: true}), authMiddleware);
 
 // data validation
-const {body, validationResult} = require("express-validator");
+// const {body, validationResult} = require("express-validator");
 
 userApp.get("/", async (req, res) => {
   const snapshot = await db.collection("users").get();
@@ -42,23 +42,30 @@ userApp.get("/:id", async (req, res) => {
 });
 
 // post body data validation
-const userCreationValidators = [
-  body("email").notEmpty().isEmail(),
-  body("firstName").notEmpty(),
-  body("lastName").notEmpty(),
+/* const userCreationValidators = [
+  body("userId").notEmpty(),
+  body("name").notEmpty(),
+  body("nickname").notEmpty(),
   body("age").notEmpty().isInt(),
-  body("password").notEmpty().isLength({min: 6}),
-];
+  body("sex").notEmpty().isInt(),
+];*/
 
-userApp.post("/", userCreationValidators, async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
+userApp.post("/", /* userCreationValidators, */ async (req, res) => {
+  // const errors = validationResult(req);
+
+  /* if (!errors.isEmpty()) {
     return res.status(400).json({errors: errors.array()});
-  }
+  }*/
   const user = req.body;
-  await db.collection("users").add(user);
+  await db.collection("users").doc(user.userId).set({
+    name: user.name,
+    nickname: user.nickname,
+    age: user.age,
+    sex: user.sex,
+  });
   res.status(201).send();
 });
+
 userApp.put("/:id", async (req, res) => {
   const body = req.body;
 
