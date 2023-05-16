@@ -41,21 +41,9 @@ userApp.get("/:id", async (req, res) => {
   res.status(200).send(JSON.stringify({id: userId, ...userData}));
 });
 
-// post body data validation
-/* const userCreationValidators = [
-  body("userId").notEmpty(),
-  body("name").notEmpty(),
-  body("nickname").notEmpty(),
-  body("age").notEmpty().isInt(),
-  body("sex").notEmpty().isInt(),
-];*/
 
-userApp.post("/", /* userCreationValidators, */ async (req, res) => {
-  // const errors = validationResult(req);
-
-  /* if (!errors.isEmpty()) {
-    return res.status(400).json({errors: errors.array()});
-  }*/
+// post user - join
+userApp.post("/", async (req, res) => {
   const user = req.body;
   await db.collection("users").doc(user.userId).set({
     name: user.name,
@@ -63,6 +51,13 @@ userApp.post("/", /* userCreationValidators, */ async (req, res) => {
     age: user.age,
     sex: user.sex,
   });
+  res.status(201).send();
+});
+
+// post user - health Condition
+userApp.put("/", async (req, res) => {
+  const {userId, ...rest} = req.body;
+  await db.collection("users").doc(userId).update(...rest);
   res.status(201).send();
 });
 
