@@ -57,7 +57,7 @@ userApp.post("/", async (req, res) => {
 // post user - health Condition
 userApp.put("/", async (req, res) => {
   const {userId, ...rest} = req.body;
-  await db.collection("users").doc(userId).update(...rest);
+  await db.collection("users").doc(userId).update(rest);
   res.status(201).send();
 });
 
