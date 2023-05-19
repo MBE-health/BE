@@ -18,6 +18,7 @@ userApp.use(cors({origin: true}), authMiddleware);
 // data validation
 // const {body, validationResult} = require("express-validator");
 
+// get all user Data
 userApp.get("/", async (req, res) => {
   const snapshot = await db.collection("users").get();
 
@@ -32,6 +33,8 @@ userApp.get("/", async (req, res) => {
   res.status(200).send(JSON.stringify(users));
 });
 
+
+// get Certain user data with userId
 userApp.get("/:id", async (req, res) => {
   const snapshot = await db.collection("users").doc(req.params.id).get();
 
