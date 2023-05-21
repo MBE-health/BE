@@ -57,11 +57,74 @@ userApp.post("/", async (req, res) => {
   res.status(201).send();
 });
 
-// post user - health Condition
+// post user - plan
+userApp.post("/plan", async (req, res) => {
+  const {userId, ...rest} = req.body;
+  console.log("userId", userId);
+  console.log(rest);
+  await db.collection("users").doc(`${userId}`).collection("plan").add(rest);
+  res.status(201).send();
+});
+
+// post user - isDone
+userApp.post("/done", async (req, res) => {
+  const {userId, ...rest} = req.body;
+  console.log("userId", userId);
+  console.log(rest);
+  await db.collection("users").doc(`${userId}`).collection("done").add(rest);
+  res.status(201).send();
+});
+
+// post user - comments
+userApp.post("/comment", async (req, res) => {
+  const {userId, ...rest} = req.body;
+  console.log("userId", userId);
+  console.log(rest);
+  await db.collection("users").doc(`${userId}`).collection("comment").add(rest);
+  res.status(201).send();
+});
+
+// put user - health Condition
 userApp.put("/", async (req, res) => {
   const {userId, ...rest} = req.body;
-  await db.collection("users").doc(userId).update(rest);
+  await db.collection("users").doc(userId)
+      .collection("health").add({...rest.healthCondition});
   res.status(201).send();
+});
+
+// put user - health grade
+userApp.put("/grade", async (req, res) => {
+  const {userId, grade} = req.body;
+  const data = {"grade": grade};
+  console.log(data, grade);
+  await db.collection("users").doc(userId).update(data);
+  res.status(201).send();
+});
+
+
+userApp.get("/plan/:id", async (req, res)=>{
+  const userId = req.params.id;
+  const recentPlan = await db
+      .collection(`/users/${userId}/plan`)
+      .orderBy("createdAt")
+      .limit(1)
+      .get()
+      .then((querySnapshot) => {
+        if (querySnapshot.empty) {
+          res.send("NO SERVERS AVAILABLE");
+        } else {
+          const docs = querySnapshot.docs.map((doc) => doc.data());
+          console.log("Document data:", docs);
+          res.end(
+              JSON.stringify(
+                  docs,
+              ),
+          );
+        }
+      });
+  console.log(recentPlan);
+
+  res.status(200).send(JSON.stringify(recentPlan.data()));
 });
 
 userApp.put("/:id", async (req, res) => {
