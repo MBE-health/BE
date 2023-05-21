@@ -101,7 +101,7 @@ userApp.put("/grade", async (req, res) => {
   res.status(201).send();
 });
 
-
+// get user - most recent plan
 userApp.get("/plan/:id", async (req, res)=>{
   const userId = req.params.id;
   const recentPlan = await db
@@ -115,6 +115,7 @@ userApp.get("/plan/:id", async (req, res)=>{
         } else {
           const docs = querySnapshot.docs.map((doc) => doc.data());
           console.log("Document data:", docs);
+
           res.end(
               JSON.stringify(
                   docs,
@@ -127,6 +128,27 @@ userApp.get("/plan/:id", async (req, res)=>{
   res.status(200).send(JSON.stringify(recentPlan.data()));
 });
 
+
+// get user - certain day plan
+userApp.get("/plan/:id/:date", async (req, res)=>{
+  const userId = req.params.id;
+  const date = req.params.date;
+  const certainDatePlan = await db
+      .collection(`/users/${userId}/plan`)
+      .where("createdAt", "==", date)
+      .get()
+      .then((querySnapshot) => {
+        const docs = querySnapshot.docs.map((doc) => doc.data());
+        console.log("Document data:", docs);
+        res.end(
+            JSON.stringify(
+                docs,
+            ),
+        );
+      });
+
+  res.status(200).send(JSON.stringify(certainDatePlan.data()));
+});
 userApp.put("/:id", async (req, res) => {
   const body = req.body;
 
