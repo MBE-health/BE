@@ -37,11 +37,31 @@ userApp.get("/", async (req, res) => {
 // get Certain user data with userId
 userApp.get("/:id", async (req, res) => {
   const snapshot = await db.collection("users").doc(req.params.id).get();
-
   const userId = snapshot.id;
   const userData = snapshot.data();
-
   res.status(200).send(JSON.stringify({id: userId, ...userData}));
+});
+
+
+// get Certain user Done data with userId
+userApp.get("/done/:id", async (req, res) => {
+  const userId = req.params.id;
+  await db
+      .collection("users")
+      .doc(`${userId}`)
+      .collection("done")
+      .orderBy("createdAt")
+      .get()
+      .then((querySnapshot) => {
+        if (querySnapshot.empty) {
+          res.send("NO SERVERS AVAILABLE");
+        } else {
+          const docs = querySnapshot.docs.map((doc) => doc.data());
+          console.log("Document data:", docs);
+          res.status(200).send(JSON.stringify(docs));
+        }
+      });
+  // res.status(200).send(JSON.stringify({id: userId, ...userData}));
 });
 
 
@@ -104,7 +124,7 @@ userApp.put("/grade", async (req, res) => {
 // get user - most recent plan
 userApp.get("/plan/:id", async (req, res)=>{
   const userId = req.params.id;
-  const recentPlan = await db
+  await db
       .collection(`/users/${userId}/plan`)
       .orderBy("createdAt")
       .limit(1)
@@ -115,7 +135,6 @@ userApp.get("/plan/:id", async (req, res)=>{
         } else {
           const docs = querySnapshot.docs.map((doc) => doc.data());
           console.log("Document data:", docs);
-
           res.end(
               JSON.stringify(
                   docs,
@@ -123,9 +142,8 @@ userApp.get("/plan/:id", async (req, res)=>{
           );
         }
       });
-  console.log(recentPlan);
-
-  res.status(200).send(JSON.stringify(recentPlan.data()));
+  // console.log(recentPlan);
+  // res.status(200).send(JSON.stringify(recentPlan.data()));
 });
 
 
@@ -146,20 +164,19 @@ userApp.get("/plan/:id/:date", async (req, res)=>{
             ),
         );
       });
-
   res.status(200).send(JSON.stringify(certainDatePlan.data()));
 });
+
+
 userApp.put("/:id", async (req, res) => {
   const body = req.body;
-
   await db.collection("users").doc(req.params.id).update(body);
-
   res.status(200).send();
 });
 
 userApp.delete("/:id", async (req, res) => {
   await db.collection("users").doc(req.params.id).delete();
-
   res.status(200).send();
 });
+
 exports.user = functions.https.onRequest(userApp);
